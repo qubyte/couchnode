@@ -17,13 +17,13 @@ static bool get_string(const v8::Handle<v8::Value> &jv,
 #endif
         return false;
     }
-
+    
     v8::Local<v8::String> s = jv->ToString();
     *szp = s->Utf8Length();
     if (!*szp) {
         return false;
     }
-
+    
     *strp = new char[*szp];
     int nw = s->WriteUtf8(*strp, -1, NULL, v8::String::NO_NULL_TERMINATION);
     return true;
@@ -75,7 +75,7 @@ bool CommonArgs::parse()
 
 bool CommonArgs::extractKey()
 {
-    if (!get_string(args[0], &key, &nkey)) {
+    if (!get_string(args[0], &key, &nkey, &hash, &nhash)) {
 #ifdef COUCHNODE_DEBUG
         printf("Arg at pos %d\n", 0);
 #endif
@@ -244,12 +244,32 @@ bool MGetArgs::extractKey()
 
     keys = new char*[kcount];
     sizes = new size_t[kcount];
-
+    hashes = new char*[kcount];
+    hash_sizes = new size_t[kcount];
+    
     memset(keys, 0, sizeof(char *) * kcount);
     memset(sizes, 0, sizeof(size_t) * kcount);
+    memset(hashes, 0, sizeof(char *) * kcount);
+    memset(hash_sizes, 0, sizeof(size_t) * kcount);
 
     for (unsigned ii = 0; ii < karry->Length(); ii++) {
-        if (!get_string(karry->Get(ii), keys + ii, sizes + ii)) {
+        v8::Local<v8::Value> keyhash = karry->Get(ii);
+        
+        // If keyhash may be a string (no hash provided), or an object like { key: "abc", hash: "def"}
+        if (keyhash->IsString()) {
+            if (!get_string(kayhash, keys + ii, sizes + ii)) {
+                return false;
+            }
+        } else if (keyhash->IsObject()) {
+            v8::Local<v8::Object> dict = keyhash->ToObject();
+            
+            if (!get_string(dict->Get(v8::Local<v8::String>::New("key")), keys + ii, sizes + ii)) {
+                return false;
+            }
+            if (!get_string(dict->Get(v8::Local<v8::String>::New("hash")), hashes + ii, hash_sizes + ii)) {
+                return false;
+            }
+        } else {
             return false;
         }
     }

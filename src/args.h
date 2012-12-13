@@ -49,6 +49,8 @@ namespace Couchnode
         v8::Local<v8::Value> udata;
         char *key;
         size_t nkey;
+        char *hash;
+        size_t nhash;
 
         // last index for operation-specific parameters, this is the length
         // of all arguments minus the key (at the beginning) and callback data
@@ -107,6 +109,9 @@ namespace Couchnode
         char **keys;
         size_t *sizes;
         time_t *exps;
+        
+        char **hashes;
+        size_t *hash_sizes;
 
         virtual bool extractKey();
     };
