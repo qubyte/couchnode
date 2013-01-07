@@ -255,7 +255,7 @@ bool MGetArgs::extractKey()
     for (unsigned ii = 0; ii < karry->Length(); ii++) {
         v8::Local<v8::Value> keyhash = karry->Get(ii);
         
-        // If keyhash may be a string (no hash provided), or an object like { key: "abc", hash: "def"}
+        // If keyhash may be a string (no hash provided), or an object like { key: "abc", hash: "def" }
         if (keyhash->IsString()) {
             if (!get_string(kayhash, keys + ii, sizes + ii)) {
                 return false;
