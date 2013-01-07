@@ -255,24 +255,41 @@ bool MGetArgs::extractKey()
     for (unsigned ii = 0; ii < karry->Length(); ii++) {
         v8::Local<v8::Value> keyhash = karry->Get(ii);
         
-        // If keyhash may be a string (no hash provided), or an object like { key: "abc", hash: "def" }
+        // keyhash may be a string (no hash provided), or an object like { key: "abc", hash: "def" }
         if (keyhash->IsString()) {
+
+            // This key is broken. Return early with failure.
             if (!get_string(kayhash, keys + ii, sizes + ii)) {
                 return false;
             }
-        } else if (keyhash->IsObject()) {
+
+            // This key is fine, proceed.
+            continue;
+        }
+
+        // Handle the keyhash when it is an object. i.e. there are hashkeys.
+        if (keyhash->IsObject()) {
             v8::Local<v8::Object> dict = keyhash->ToObject();
             
+            // This key is broken. Return early.
             if (!get_string(dict->Get(v8::Local<v8::String>::New("key")), keys + ii, sizes + ii)) {
                 return false;
             }
+
+            // This hashkey is broken. Return early with failure.
             if (!get_string(dict->Get(v8::Local<v8::String>::New("hash")), hashes + ii, hash_sizes + ii)) {
                 return false;
             }
-        } else {
-            return false;
+
+            // This hashkey is fine, proceed.
+            continue;
         }
+
+        // The hashkey had an unexpected type. Return early with failure.
+        return false;
     }
+
+    // All hashkeys parsed. Return a success.
     return true;
 }
 

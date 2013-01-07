@@ -1,16 +1,31 @@
 {
-    "bugs" : { "url" : "www.couchbase.com/issues", "email" : "support@couchbase.com" },
+    "engines": {
+        "node": "0.8.x"
+    },
+    "bugs": {
+        "url": "www.couchbase.com/issues",
+        "email": "support@couchbase.com"
+    },
     "description": "Client library for accessing a Couchbase Server cluster",
-    "engines" : { "node" : ">=0.8.8" },
     "homepage": "http://www.couchbase.com/develop",
-    "keywords": ["couchbase", "libcouchbase", "memcached", "nosql", "json", "document"],
+    "keywords": [
+        "couchbase",
+        "libcouchbase",
+        "memcached",
+        "nosql",
+        "json",
+        "document"
+    ],
     "main": "./lib/couchbase",
     "name": "couchbase",
     "dependencies": {
       "request": "2.11.x",
       "bindings": "~1.0.0"
     },
-    "repository" : { "type" : "git", "url" : "http://github.com/couchbase/couchnode.git" },
+    "repository": {
+        "type": "git",
+        "url": "http://github.com/couchbase/couchnode.git"
+    },
     "version": "0.0.10",
     "gypfile": true
 }
