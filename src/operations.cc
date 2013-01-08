@@ -40,6 +40,13 @@ static lcb_error_t doGet(lcb_t instance,
                                              cargs->sizes[ii],
                                              cargs->exps[ii]);
         }
+
+        // libcouchbase does not currently allow hashkey and nhashkey to
+        // be initialised using a constructor. We have to do this manually.
+        if (cargs->hashkeys[ii] != NULL) { //TODO Is this correct?
+            commands[ii].v.v0.hashkey = cargs->hashkeys[ii];
+            commands[ii].v.v0.nhashkey = cargs->hash_sizes[ii];
+        }
     }
 
     lcb_error_t ret = lcb_get(instance, cookie, cargs->kcount, commands);
@@ -60,6 +67,14 @@ static lcb_error_t doSet(lcb_t instance,
     lcb_store_cmd_t cmd(cargs->storop, cargs->key, cargs->nkey,
                         cargs->data, cargs->ndata, 0, cargs->exp,
                         cargs->cas);
+
+    // As with doGet, the constructor for cmd doesn't allow hashkey and nhashkey
+    // to be set. We do this manually.
+    if (cargs->hashkey != NULL) {
+        cmd.v.v0.hashkey = cargs->hashkey;
+        cmd.v.v0.nhashkey = cargs->nhashkey;
+    }
+
     lcb_store_cmd_t *commands[] = { &cmd };
     return lcb_store(instance, cookie, 1, commands);
 }
@@ -83,6 +98,13 @@ static lcb_error_t doTouch(lcb_t instance,
                                                cargs->sizes[ii],
                                                cargs->exps[ii]);
         }
+
+        // As with doGet, the constructor for commands[ii] doesn't allow hashkey
+        // and nhashkey to be set. We do this manually.
+        if (cargs->hashkeys[ii] != NULL) { //TODO Is this correct?
+            commands[ii].v.v0.hashkey = cargs->hashkeys[ii];
+            commands[ii].v.v0.nhashkey = cargs->hash_sizes[ii];
+        }
     }
 
     lcb_error_t ret = lcb_touch(instance, cookie, cargs->kcount, commands);
@@ -99,6 +121,14 @@ static lcb_error_t doObserve(lcb_t instance,
                              CouchbaseCookie *cookie)
 {
     lcb_observe_cmd_t cmd(args->key, args->nkey);
+
+    // As with doGet, the constructor for doObserve doesn't allow hashkey and
+    // nhashkey to be set. We do this manually.
+    if (cargs->hashkey != NULL) {
+        cmd.v.v0.hashkey = cargs->hashkey;
+        cmd.v.v0.nhashkey = cargs->nhashkey;
+    }
+
     lcb_observe_cmd_t *commands[] = { &cmd };
     return lcb_observe(instance, cookie, 1, commands);
 }
@@ -110,6 +140,14 @@ static lcb_error_t doArithmetic(lcb_t instance,
     ArithmeticArgs *cargs = static_cast<ArithmeticArgs *>(args);
     lcb_arithmetic_cmd_t cmd(cargs->key, cargs->nkey, cargs->delta,
                              cargs->create, cargs->initial, cargs->exp);
+
+    // As with doGet, the constructor for cmd doesn't allow hashkey and nhashkey
+    // to be set. We do this manually.
+    if (cargs->hashkey != NULL) {
+        cmd.v.v0.hashkey = cargs->hashkey;
+        cmd.v.v0.nhashkey = cargs->nhashkey;
+    }
+
     lcb_arithmetic_cmd_t *commands[] = { &cmd };
     return lcb_arithmetic(instance, cookie, 1, commands);
 }
@@ -120,6 +158,14 @@ static lcb_error_t doRemove(lcb_t instance,
 {
     KeyopArgs *cargs = static_cast<KeyopArgs *>(args);
     lcb_remove_cmd_t cmd(cargs->key, cargs->nkey, cargs->cas);
+
+    // As with doGet, the constructor for cmd doesn't allow hashkey and nhashkey
+    // to be set. We do this manually.
+    if (cargs->hashkey != NULL) {
+        cmd.v.v0.hashkey = cargs->hashkey;
+        cmd.v.v0.nhashkey = cargs->nhashkey;
+    }
+    
     lcb_remove_cmd_t *commands[] = { &cmd };
     return lcb_remove(instance, cookie, 1, commands);
 }
