@@ -108,10 +108,9 @@ namespace Couchnode
 
         char **keys;
         size_t *sizes;
-        time_t *exps;
-        
         char **hashes;
         size_t *hash_sizes;
+        time_t *exps;
 
         virtual bool extractKey();
     };

@@ -41,7 +41,7 @@ static inline bool isFalseValue(const v8::Handle<v8::Value> &v)
 }
 
 CommonArgs::CommonArgs(const v8::Arguments &argv, int pmax, int reqmax)
-    : args(argv), key(NULL), params_max(pmax), required_max(reqmax), stale(false)
+    : args(argv), key(NULL), hash(NULL), params_max(pmax), required_max(reqmax), stale(false)
 {
 }
 
@@ -75,13 +75,39 @@ bool CommonArgs::parse()
 
 bool CommonArgs::extractKey()
 {
-    if (!get_string(args[0], &key, &nkey, &hash, &nhash)) {
+    // Is zeroth argument a key?
+    if (args[0]->IsString()) {
+        if (!get_string(args[0], &key, &nkey)) {
 #ifdef COUCHNODE_DEBUG
-        printf("Arg at pos %d\n", 0);
+            printf("Arg at pos %d\n", 0);
 #endif
-        throw Couchnode::Exception("Couldn't extract string");
+            throw Couchnode::Exception("Couldn't extract string");
+        }
+
+        return true;
     }
-    return true;
+
+    // Is zeroth argument a hashkey?
+    if (args[0]->IsObject()) {
+        v8::Local<v8::Object> dict = args[0]->ToObject();
+        v8::Local<v8::Value> hashkey_key = dict->Get(v8::String::New("key"));
+        v8::Local<v8::Value> hashkey_hash = dict->Get(v8::String::New("hash"));
+        
+        // This key is broken. Return early.
+        if (!get_string(hashkey_key, &key, &nkey)) {
+            throw Couchnode::Exception("Couldn't extract key from hashkey object");
+        }
+        
+        // This hashkey is broken. Return early with failure.
+        if (!get_string(hashkey_hash, &hash, &nhash)) {
+            throw Couchnode::Exception("Couldn't extract hashkey from hashkey object");
+        }
+
+        return true;
+    }
+
+    // Zeroth argument was not a string or an object.
+    throw Couchnode::Exception("Couldn't extract key or hashkey");
 }
 
 bool CommonArgs::extractUdata()
@@ -156,7 +182,6 @@ CommonArgs::~CommonArgs()
 // store(key, value, exp, cas, cb, data)
 StorageArgs::StorageArgs(const v8::Arguments &argv, int vparams)
     : CommonArgs(argv, vparams + 3, 1),
-
       data(NULL), ndata(0), exp(0), cas(0)
 {
 }
@@ -204,14 +229,14 @@ StorageArgs::~StorageArgs()
 
 MGetArgs::MGetArgs(const v8::Arguments &args, int nkparams)
     : CommonArgs(args, nkparams),
-      kcount(0), single_exp(0), keys(NULL), sizes(NULL), exps(NULL)
+      kcount(0), single_exp(0), keys(NULL), sizes(NULL), hashes(NULL), hash_sizes(NULL), exps(NULL)
 {
 }
 
 bool MGetArgs::extractKey()
 {
 
-    if (args[0]->IsString()) {
+    if (args[0]->IsString() || args[0]->IsObject()) {
         if (!CommonArgs::extractKey()) {
             return false;
         }
@@ -225,6 +250,11 @@ bool MGetArgs::extractKey()
 
         keys = &key;
         sizes = &nkey;
+        
+        if (args[0]->IsObject()) {
+            hashes = &hash;
+            hash_sizes = &nhash;
+        }
 
         if (single_exp) {
             exps = &single_exp;
@@ -259,7 +289,7 @@ bool MGetArgs::extractKey()
         if (keyhash->IsString()) {
 
             // This key is broken. Return early with failure.
-            if (!get_string(kayhash, keys + ii, sizes + ii)) {
+            if (!get_string(keyhash, keys + ii, sizes + ii)) {
                 return false;
             }
 
@@ -270,14 +300,16 @@ bool MGetArgs::extractKey()
         // Handle the keyhash when it is an object. i.e. there are hashkeys.
         if (keyhash->IsObject()) {
             v8::Local<v8::Object> dict = keyhash->ToObject();
+            v8::Local<v8::Value> key = dict->Get(v8::String::New("key"));
+            v8::Local<v8::Value> hash = dict->Get(v8::String::New("hash"));
             
             // This key is broken. Return early.
-            if (!get_string(dict->Get(v8::Local<v8::String>::New("key")), keys + ii, sizes + ii)) {
+            if (!get_string(key, keys + ii, sizes + ii)) {
                 return false;
             }
 
             // This hashkey is broken. Return early with failure.
-            if (!get_string(dict->Get(v8::Local<v8::String>::New("hash")), hashes + ii, hash_sizes + ii)) {
+            if (!get_string(hash, hashes + ii, hash_sizes + ii)) {
                 return false;
             }
 
@@ -320,10 +352,23 @@ MGetArgs::~MGetArgs()
         }
         delete[] keys;
     }
+    
+    if (hash_sizes && hash_sizes != &nhash) {
+        delete[] hash_sizes;
+    }
+    
+    if (hashes && hashes != &hash) {
+        for (unsigned ii = 0; ii < kcount; ii++) {
+            delete[] hashes[ii];
+        }
+        delete[] hashes;
+    }
 
     exps = NULL;
     sizes = NULL;
     keys = NULL;
+    hash_sizes = NULL;
+    hashes = NULL;
 }
 
 KeyopArgs::KeyopArgs(const v8::Arguments &args)

@@ -43,9 +43,9 @@ static lcb_error_t doGet(lcb_t instance,
 
         // libcouchbase does not currently allow hashkey and nhashkey to
         // be initialised using a constructor. We have to do this manually.
-        if (cargs->hashkeys[ii] != NULL) { //TODO Is this correct?
-            commands[ii].v.v0.hashkey = cargs->hashkeys[ii];
-            commands[ii].v.v0.nhashkey = cargs->hash_sizes[ii];
+        if (cargs->hashes[ii] != NULL) { //TODO Is this correct?
+            commands[ii]->v.v0.hashkey = cargs->hashes[ii];
+            commands[ii]->v.v0.nhashkey = cargs->hash_sizes[ii];
         }
     }
 
@@ -70,9 +70,9 @@ static lcb_error_t doSet(lcb_t instance,
 
     // As with doGet, the constructor for cmd doesn't allow hashkey and nhashkey
     // to be set. We do this manually.
-    if (cargs->hashkey != NULL) {
-        cmd.v.v0.hashkey = cargs->hashkey;
-        cmd.v.v0.nhashkey = cargs->nhashkey;
+    if (cargs->hash != NULL) {
+        cmd.v.v0.hashkey = cargs->hash;
+        cmd.v.v0.nhashkey = cargs->nhash;
     }
 
     lcb_store_cmd_t *commands[] = { &cmd };
@@ -101,9 +101,9 @@ static lcb_error_t doTouch(lcb_t instance,
 
         // As with doGet, the constructor for commands[ii] doesn't allow hashkey
         // and nhashkey to be set. We do this manually.
-        if (cargs->hashkeys[ii] != NULL) { //TODO Is this correct?
-            commands[ii].v.v0.hashkey = cargs->hashkeys[ii];
-            commands[ii].v.v0.nhashkey = cargs->hash_sizes[ii];
+        if (cargs->hashes[ii] != NULL) { //TODO Is this correct?
+            commands[ii]->v.v0.hashkey = cargs->hashes[ii];
+            commands[ii]->v.v0.nhashkey = cargs->hash_sizes[ii];
         }
     }
 
@@ -124,9 +124,9 @@ static lcb_error_t doObserve(lcb_t instance,
 
     // As with doGet, the constructor for doObserve doesn't allow hashkey and
     // nhashkey to be set. We do this manually.
-    if (cargs->hashkey != NULL) {
-        cmd.v.v0.hashkey = cargs->hashkey;
-        cmd.v.v0.nhashkey = cargs->nhashkey;
+    if (args->hash != NULL) {
+        cmd.v.v0.hashkey = args->hash;
+        cmd.v.v0.nhashkey = args->nhash;
     }
 
     lcb_observe_cmd_t *commands[] = { &cmd };
@@ -143,9 +143,9 @@ static lcb_error_t doArithmetic(lcb_t instance,
 
     // As with doGet, the constructor for cmd doesn't allow hashkey and nhashkey
     // to be set. We do this manually.
-    if (cargs->hashkey != NULL) {
-        cmd.v.v0.hashkey = cargs->hashkey;
-        cmd.v.v0.nhashkey = cargs->nhashkey;
+    if (cargs->hash != NULL) {
+        cmd.v.v0.hashkey = cargs->hash;
+        cmd.v.v0.nhashkey = cargs->nhash;
     }
 
     lcb_arithmetic_cmd_t *commands[] = { &cmd };
@@ -161,9 +161,9 @@ static lcb_error_t doRemove(lcb_t instance,
 
     // As with doGet, the constructor for cmd doesn't allow hashkey and nhashkey
     // to be set. We do this manually.
-    if (cargs->hashkey != NULL) {
-        cmd.v.v0.hashkey = cargs->hashkey;
-        cmd.v.v0.nhashkey = cargs->nhashkey;
+    if (cargs->hash != NULL) {
+        cmd.v.v0.hashkey = cargs->hash;
+        cmd.v.v0.nhashkey = cargs->nhash;
     }
     
     lcb_remove_cmd_t *commands[] = { &cmd };
