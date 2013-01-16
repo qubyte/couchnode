@@ -34,7 +34,7 @@ describe('test args', function () {
 
     
     it('correct get', function () {
-        assert.throws(function() {
+        assert.doesNotThrow(function() {
             connection.get('key1', function () {});
         });
     });
