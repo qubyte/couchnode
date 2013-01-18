@@ -1,6 +1,3 @@
-
-    
-
 describe('test args', function () {
     var couchbase = require(__dirname + '/../lib/couchbase.js');
     var assert = require('assert');
@@ -12,7 +9,7 @@ describe('test args', function () {
         // try to require settings from file
         config = require(__dirname + '/config.json');
     } catch (e) {
-        // default settings
+        // default settings if the file was not available
         config = {
             hosts : [ "localhost:8091" ],
             bucket : "default"
@@ -32,57 +29,37 @@ describe('test args', function () {
         });
     });
 
-    
+    // tests follow
+
     it('correct get', function () {
-        assert.doesNotThrow(function() {
-            connection.get('key1', function () {});
+        assert.doesNotThrow(function () {
+            connection.get('correct get', function () {});
         });
     });
     
-});
-
-
-
-
-/*
-
-
-setup.plan(7);
-
-setup(function(err, cb) {
-    assert(!err, "setup failure");
-
-    cb.on("error", function (message) {
-        console.log("ERROR: [" + message + "]");
-        process.exit(1);
-    });
-
-    // things that should work
-    assert.doesNotThrow(function() {
-        cb.get("has callback", setup.end);
-    });
-
-    assert.doesNotThrow(function() {
-        cb.set("has callback", "value", setup.end);
-    });
-
-    assert.doesNotThrow(function() {
-        // falsy values for CAS and exp
-        [null, undefined, 0, false].forEach(function(fv) {
-            cb.set("has falsy meta", "value", {cas : fv, exp : fv}, setup.end);
+    it('correct set', function () {
+        assert.doesNotThrow(function () {
+            connection.set('correct set', 'someValue', function () {});
         });
     });
 
-    // things that should error
-    assert.throws(function() {
-        cb.get("needs callback");
+    it('falsy values for CAS and exp should not throw', function () {
+        assert.doesNotThrow(function() {
+            [null, undefined, 0, false].forEach(function (fv) {
+                connection.set("has falsy meta", "value", {cas : fv, exp : fv}, function () {});
+            });
+        });
     });
 
-    assert.throws(function() {
-        cb.set("needs callback");
+    it('bad get arguments should throw', function () {
+        assert.throws(function() {
+            connection.get("needs callback");
+        });
     });
 
-    setup.end();
+    it('bad set arguments should throw', function () {
+        assert.throws(function() {
+            cb.set("needs callback");
+        });
+    });
 });
-
-*/
