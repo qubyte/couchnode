@@ -6,8 +6,8 @@ describe('test set', function () {
     var connection;
     var firstmeta;
 
-    var testkey = "01-set.js";
-    var testkey2 = "01-set.js2";
+    var testkey = '01-set.js';
+    var testkey2 = '01-set.js2';
     
     try {
         // try to require settings from file
@@ -15,8 +15,8 @@ describe('test set', function () {
     } catch (e) {
         // default settings if the file was not available
         config = {
-            hosts : [ "localhost:8091" ],
-            bucket : "default"
+            hosts : [ 'localhost:8091' ],
+            bucket : 'default'
         };
     }
     
@@ -36,9 +36,9 @@ describe('test set', function () {
     // tests follow
 
     it('should store a string', function (done) {
-        connection.set(testkey, "bar", function (err, meta) {
-            assert(!err, "Failed to store object");
-            assert.equal(testkey, meta.id, "Callback called with wrong key!");
+        connection.set(testkey, 'bar', function (err, meta) {
+            assert(!err, 'Failed to store object.');
+            assert.equal(testkey, meta.id, 'Callback called with wrong key!');
 
             firstmeta = meta;
 
@@ -47,22 +47,22 @@ describe('test set', function () {
     });
 
     it('should set a string with CAS', function (done) {
-        connection.set(testkey, "baz", firstmeta, function(err, meta) {
-            assert(!err, "Failed to set with cas");
-            assert.equal(testkey, meta.id, "Callback called with wrong key!");
-            assert.notEqual(firstmeta.cas.str, meta.cas.str, "cas should change");
+        connection.set(testkey, 'baz', firstmeta, function(err, meta) {
+            assert(!err, 'Failed to set with CAS.');
+            assert.equal(testkey, meta.id, 'Callback called with wrong key!');
+            assert.notEqual(firstmeta.cas.str, meta.cas.str, 'CAS should change.');
 
             done();
         });
     });
 
     it('should error and not write with CAS mismatch', function (done) {
-        connection.set(testkey, "bam", firstmeta, function(err, meta) {
-            assert(err, "Should error with cas mismatch");
+        connection.set(testkey, 'bam', firstmeta, function(err, meta) {
+            assert(err, 'Should error with cas mismatch.');
 
             connection.get(testkey, function(err, doc) {
-                assert(!err, "Failed to load object");
-                assert.strictEqual("baz", doc, "Document changed despite bad cas!");
+                assert(!err, 'Failed to load object.');
+                assert.strictEqual('baz', doc, 'Document changed despite bad cas!');
 
                 done();
             });
@@ -70,16 +70,31 @@ describe('test set', function () {
     });
 
     it('should update key without CAS', function (done) {
-        connection.set(testkey2, {foo : "bar"}, function (err, meta) {
-            assert(!err, "Failed to store object");
-            assert.deepEqual(testkey2, meta.id, "Callback called with wrong key!");
+        connection.set(testkey2, {foo : 'bar'}, function (err, meta) {
+            assert(!err, 'Failed to store object.');
+            assert.deepEqual(testkey2, meta.id, 'Callback called with wrong key!');
 
-            connection.set(testkey2, {foo : "baz"}, function(err, meta) {
-                assert(!err, "Failed to set without cas");
-                assert.deepEqual(testkey2, meta.id, "Callback called with wrong key!");
+            connection.set(testkey2, {foo : 'baz'}, function(err, meta) {
+                assert(!err, 'Failed to set without cas.');
+                assert.deepEqual(testkey2, meta.id, 'Callback called with wrong key!');
 
                 done();
             });
+        });
+    });
+
+    it('should set a very long string', function (done) {
+        var testkey = '01-set-big.js';
+        var longString = '';
+        
+        for (var i = 0; i < 8192; i++) {
+            longString += '012345678\n';
+        }
+
+        connection.set(testkey, object, function (err, firstmeta) {
+            assert(!err, 'Failed to store long string.');
+            
+            done();
         });
     });
 });

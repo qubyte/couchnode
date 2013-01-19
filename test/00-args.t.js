@@ -11,8 +11,8 @@ describe('test args', function () {
     } catch (e) {
         // default settings if the file was not available
         config = {
-            hosts : [ "localhost:8091" ],
-            bucket : "default"
+            hosts : [ 'localhost:8091' ],
+            bucket : 'default'
         };
     }
     
@@ -46,20 +46,20 @@ describe('test args', function () {
     it('falsy values for CAS and exp should not throw', function () {
         assert.doesNotThrow(function() {
             [null, undefined, 0, false].forEach(function (fv) {
-                connection.set("has falsy meta", "value", {cas : fv, exp : fv}, function () {});
+                connection.set('has falsy meta', 'value', {cas : fv, exp : fv}, function () {});
             });
         });
     });
 
     it('bad get arguments should throw', function () {
         assert.throws(function() {
-            connection.get("needs callback");
+            connection.get('needs callback');
         });
     });
 
     it('bad set arguments should throw', function () {
         assert.throws(function() {
-            cb.set("needs callback");
+            cb.set('needs callback');
         });
     });
 });
