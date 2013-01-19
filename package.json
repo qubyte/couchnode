@@ -9,6 +9,12 @@
     "dependencies": {
       "bindings": "~1.0.0"
     },
+    "devDependencies": {
+      "mocha": "*"
+    },
+    "scripts": {
+      "test": "./node_modules/mocha/bin/mocha"
+    },
     "repository" : { "type" : "git", "url" : "http://github.com/couchbase/couchnode.git" },
     "version": "0.0.11",
     "gypfile": true
