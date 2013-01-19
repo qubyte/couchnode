@@ -13,7 +13,7 @@
       "mocha": "*"
     },
     "scripts": {
-        "test": "./node_modules/mocha/bin/mocha"
+      "test": "./node_modules/mocha/bin/mocha"
     },
     "repository" : { "type" : "git", "url" : "http://github.com/couchbase/couchnode.git" },
     "version": "0.0.11",
