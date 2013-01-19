@@ -49,7 +49,7 @@ describe('test set', function () {
     it('should set a string with CAS', function (done) {
         connection.set(testkey, "baz", firstmeta, function(err, meta) {
             assert(!err, "Failed to set with cas");
-            assert.equal(testkey, meta.id, "Callback called with wrong key!")
+            assert.equal(testkey, meta.id, "Callback called with wrong key!");
             assert.notEqual(firstmeta.cas.str, meta.cas.str, "cas should change");
 
             done();
@@ -62,7 +62,7 @@ describe('test set', function () {
 
             connection.get(testkey, function(err, doc) {
                 assert(!err, "Failed to load object");
-                assert.strictEqual("baz", doc, "Document changed despite bad cas!")
+                assert.strictEqual("baz", doc, "Document changed despite bad cas!");
 
                 done();
             });
@@ -79,7 +79,7 @@ describe('test set', function () {
                 assert.deepEqual(testkey2, meta.id, "Callback called with wrong key!");
 
                 done();
-            })
+            });
         });
-    })
+    });
 });

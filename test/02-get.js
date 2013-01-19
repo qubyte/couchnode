@@ -38,11 +38,11 @@ describe('test set', function () {
     it('should get correct string after reset', function (done) {
         connection.set(testkey1, "{bar}", function (err, meta) {
             assert(!err, "Failed to store object");
-            assert.equal(testkey1, meta.id, "Callback called with wrong key!")
+            assert.equal(testkey1, meta.id, "Callback called with wrong key!");
 
             connection.get(testkey1, function (err, doc, meta) {
-                assert.strictEqual(testkey1, meta.id, "Callback called with wrong key!")
-                assert.strictEqual("{bar}", doc, "Callback called with wrong value!")
+                assert.strictEqual(testkey1, meta.id, "Callback called with wrong key!");
+                assert.strictEqual("{bar}", doc, "Callback called with wrong value!");
 
                 connection.set(testkey1, "bam", meta, function (err, meta) {
                     assert(!err, "Failed to set with cas");
@@ -50,7 +50,7 @@ describe('test set', function () {
 
                     connection.get(testkey1, function (err, doc, meta) {
                         assert(!err, "Failed to get");
-                        assert.strictEqual("bam", doc, "Callback called with wrong value!")
+                        assert.strictEqual("bam", doc, "Callback called with wrong value!");
 
                         done();
                     });
@@ -64,14 +64,14 @@ describe('test set', function () {
 
         connection.set(testkey2, testObject, function (err, meta) {
             assert(!err, "Failed to store object");
-            assert.strictEqual(testkey2, meta.id, "Callback called with wrong key!")
+            assert.strictEqual(testkey2, meta.id, "Callback called with wrong key!");
 
             connection.get(testkey2, function (err, doc, meta) {
                 assert.strictEqual(testkey2, meta.id, "Callback called with wrong key!");
                 assert.deepEqual(testObject, doc, "JSON values should be converted back to objects");
 
                 done();
-            })
+            });
         });
     });
 
@@ -80,15 +80,15 @@ describe('test set', function () {
 
         connection.set(testkey3, testArray, function (err, meta) {
             assert(!err, "Failed to store object");
-            assert.equal(testkey3, meta.id, "Callback called with wrong key!")
+            assert.equal(testkey3, meta.id, "Callback called with wrong key!");
 
             connection.get(testkey3, function (err, doc, meta) {
-                assert.strictEqual(testkey3, meta.id, "Callback called with wrong key!")
+                assert.strictEqual(testkey3, meta.id, "Callback called with wrong key!");
                 assert.deepEqual(testArray, doc, "JSON values should be converted back to objects");
                 assert(Array.isArray(doc), 'Recovered document should be an array.');
 
                 done();
-            })
+            });
         });
     });
 });

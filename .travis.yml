@@ -1,0 +1,10 @@
+before_install:
+ - git clone --depth 1 git://github.com/couchbase/libcouchbase.git
+ - cd libcouchbase
+ - ./config/autorun.sh
+ - ./configure
+ - make
+ - sudo make install
+language: node_js
+ - "0.8"
+ - "0.9"
