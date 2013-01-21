@@ -1,23 +1,10 @@
 describe('test get', function () {
-    var couchbase = require(__dirname + '/../lib/couchbase.js');
     var assert = require('assert');
-    
-    var config;
+    var setup = require(__dirname + '/setup');
     var connection;
-    
-    try {
-        // try to require settings from file
-        config = require(__dirname + '/config.json');
-    } catch (e) {
-        // default settings if the file was not available
-        config = {
-            hosts : [ 'localhost:8091' ],
-            bucket : 'default'
-        };
-    }
-    
+
     before(function (done) {
-        couchbase.connect(config, function afterConnection(err, conn) {
+        setup.connect(function (err, conn) {
             if (err) {
                 return done(err);
             }

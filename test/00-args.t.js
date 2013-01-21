@@ -1,23 +1,10 @@
 describe('test args', function () {
-    var couchbase = require(__dirname + '/../lib/couchbase.js');
     var assert = require('assert');
-    
-    var config;
+    var setup = require(__dirname + '/setup');
     var connection;
-    
-    try {
-        // try to require settings from file
-        config = require(__dirname + '/config.json');
-    } catch (e) {
-        // default settings if the file was not available
-        config = {
-            hosts : [ 'localhost:8091' ],
-            bucket : 'default'
-        };
-    }
-    
+
     before(function (done) {
-        couchbase.connect(config, function afterConnection(err, conn) {
+        setup.connect(function (err, conn) {
             if (err) {
                 return done(err);
             }
@@ -29,34 +16,36 @@ describe('test args', function () {
 
     // tests follow
 
+    function devNull() {} // Throw it on the ground.
+
     it('correct get', function () {
         assert.doesNotThrow(function () {
-            connection.get('correct get', function () {});
+            connection.get('correct get', devNull);
         });
     });
     
     it('correct set', function () {
         assert.doesNotThrow(function () {
-            connection.set('correct set', 'someValue', function () {});
+            connection.set('correct set', 'someValue', devNull);
         });
     });
 
     it('falsy values for CAS and exp should not throw', function () {
         assert.doesNotThrow(function() {
             [null, undefined, 0, false].forEach(function (fv) {
-                connection.set('has falsy meta', 'value', {cas : fv, exp : fv}, function () {});
+                connection.set('has falsy meta', 'value', {cas : fv, exp : fv}, devNull);
             });
         });
     });
 
     it('bad get arguments should throw', function () {
-        assert.throws(function() {
+        assert.throws(function () {
             connection.get('needs callback');
         });
     });
 
     it('bad set arguments should throw', function () {
-        assert.throws(function() {
+        assert.throws(function () {
             cb.set('needs callback');
         });
     });
