@@ -18,6 +18,7 @@ describe('test get', function () {
 
     it('should get correct string after reset', function (done) {
         var testkey = '01-set.js';
+        var storedMeta;
 
         connection.set(testkey, '{bar}', function (err, meta) {
             assert(!err, 'Failed to store object.');

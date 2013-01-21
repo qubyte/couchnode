@@ -16,8 +16,6 @@ describe('test remove', function () {
 
     // tests follow
 
-    // tests follow
-
     it('should remove a key from the store', function (done) {
         var testkey = "04-remove.js"
 

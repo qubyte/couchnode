@@ -16,8 +16,6 @@ describe('test add', function () {
 
     // tests follow
 
-    // tests follow
-
     it('should add a key to the store', function (done) {
         var testkey = '06-add.js';
 

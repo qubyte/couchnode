@@ -16,8 +16,6 @@ describe('test replace', function () {
 
     // tests follow
 
-    // tests follow
-
     it('should replace a key in the store', function (done) {
         var testkey = '05-replace.js';
 

@@ -81,10 +81,8 @@ describe('test set', function () {
             longString += '012345678\n';
         }
 
-        connection.set(testkey, longString, function (err, firstmeta) {
-            assert(!err, 'Failed to store long string.');
-            
-            done();
+        connection.set(testkey, longString, function (err) {
+            done(err);
         });
     });
 });

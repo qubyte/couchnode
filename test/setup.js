@@ -1,9 +1,8 @@
 var couchbase = require(__dirname + '/../lib/couchbase.js');
 var connection;
+var config;
 
 function connect(callback) {
-    var config;
-
     // If the connection has already been established, callback immediately.
     if (connection) {
         return callback(null, connection);
@@ -14,11 +13,7 @@ function connect(callback) {
         config = require(__dirname + '/config.json');    
         console.log('using config file:', config);
     } catch (e) {
-        config = {
-            hosts : [ 'localhost:8091' ],
-            bucket : 'default'
-        };
-    
+        config = { hosts : [ 'localhost:8091' ], bucket : 'default' };
         console.log('using default config:', config);
     }
 
