@@ -17,8 +17,6 @@ describe('test multiple get', function () {
         };
     }
     
-    console.log(config);
-
     before(function (done) {
         couchbase.connect(config, function afterConnection(err, conn) {
             if (err) {
@@ -34,7 +32,7 @@ describe('test multiple get', function () {
 
 
     it('should get multiple items with an array of keys', function (done) {
-        keys = ['key0', 'key1', 'key2', 'key3', 'key4', 'key5', 'key6', 'key7', 'key8', 'key9'];
+        var keys = ['key0', 'key1', 'key2', 'key3', 'key4', 'key5', 'key6', 'key7', 'key8', 'key9'];
 
         var getCounter = 0;
 
@@ -45,7 +43,7 @@ describe('test multiple get', function () {
             getCounter += 1;
         }
 
-        function multigetCallback(err, docs, metas) {
+        function multiGetCallback(err, docs, metas) {
             assert(!err, 'Multiget error.');
             assert.strictEqual(docs.length, 10, '10 docs should have been retrieved.');
             assert.strictEqual(metas.length, docs.length, 'The same number of docs and metas should have been retrieved.');

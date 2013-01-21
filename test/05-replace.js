@@ -16,8 +16,6 @@ describe('test replace', function () {
         };
     }
     
-    console.log(config);
-
     before(function (done) {
         couchbase.connect(config, function afterConnection(err, conn) {
             if (err) {
@@ -35,18 +33,18 @@ describe('test replace', function () {
         var testkey = '05-replace.js';
 
         // The test key may or may not exist. If not then we ignore the error.
-        couchbase.remove(testkey, function () {
+        connection.remove(testkey, function () {
 
-            couchbase.replace(testkey, 'bar', function(err, meta) {
+            connection.replace(testkey, 'bar', function(err, meta) {
                 assert(err, 'Can\'t replace object that is already removed');
 
-                couchbase.set(testkey, 'bar', function (err, meta) {
+                connection.set(testkey, 'bar', function (err, meta) {
                     assert(!err, 'Failed to store object');
 
-                    couchbase.replace(testkey, 'bazz', function (err, meta) {
+                    connection.replace(testkey, 'bazz', function (err, meta) {
                         assert(!err, 'Failed to replace object');
 
-                        couchbase.get(testkey, function (err, doc) {
+                        connection.get(testkey, function (err, doc) {
                             assert(!err, 'Failed to get object');
                             assert.strictEqual('bazz', doc, 'Replace didn\'t work');
 

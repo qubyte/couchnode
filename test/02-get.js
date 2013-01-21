@@ -16,8 +16,6 @@ describe('test get', function () {
         };
     }
     
-    console.log(config);
-
     before(function (done) {
         couchbase.connect(config, function afterConnection(err, conn) {
             if (err) {
@@ -36,16 +34,16 @@ describe('test get', function () {
 
         connection.set(testkey, '{bar}', function (err, meta) {
             assert(!err, 'Failed to store object.');
-            assert.equal(testkey1, meta.id, 'Callback called with wrong key!');
+            assert.equal(testkey, meta.id, 'Callback called with wrong key!');
 
             connection.get(testkey, function (err, doc, meta) {
                 assert(!err, 'Failed to get object.');
-                assert.strictEqual(testkey1, meta.id, 'Callback called with wrong key!');
+                assert.strictEqual(testkey, meta.id, 'Callback called with wrong key!');
                 assert.strictEqual('{bar}', doc, 'Callback called with wrong value!');
 
                 connection.set(testkey, 'bam', meta, function (err, meta) {
                     assert(!err, 'Failed to set with CAS.');
-                    assert.strictEqual(testkey1, meta.id, 'Callback called with wrong key!');
+                    assert.strictEqual(testkey, meta.id, 'Callback called with wrong key!');
 
                     connection.get(testkey, function (err, doc, meta) {
                         assert(!err, 'Failed to get object.');
@@ -64,11 +62,11 @@ describe('test get', function () {
 
         connection.set(testkey, testObject, function (err, meta) {
             assert(!err, 'Failed to store object.');
-            assert.strictEqual(testkey2, meta.id, 'Callback called with wrong key!');
+            assert.strictEqual(testkey, meta.id, 'Callback called with wrong key!');
 
             connection.get(testkey, function (err, doc, meta) {
                 assert(!err, 'Failed to get object.');
-                assert.strictEqual(testkey2, meta.id, 'Callback called with wrong key!');
+                assert.strictEqual(testkey, meta.id, 'Callback called with wrong key!');
                 assert.deepEqual(testObject, doc, 'JSON values should be converted back to objects.');
 
                 done();
@@ -99,11 +97,11 @@ describe('test get', function () {
         var testkey = 'get-test-4';
         var testObject = ['☆'];
 
-        cb.set(testkey, testObject, function (err, meta) {
+        connection.set(testkey, testObject, function (err, meta) {
             assert(!err, 'Failed to store object.');
             assert.strictEqual(testkey, meta.id, 'Callback called with wrong key!');
 
-            cb.get(testkey, function (err, doc, meta) {
+            connection.get(testkey, function (err, doc, meta) {
                 assert(!err, 'Failed to get object.');
                 assert.strictEqual(testkey, meta.id, 'Callback called with wrong key!');
                 assert.deepEqual(testObject, doc, 'JSON values should be converted back to objects.');
@@ -118,11 +116,11 @@ describe('test get', function () {
         var testkey = 'get-test-5';
         var testString = '☆';
 
-        cb.set(testkey, testString, function (err, meta) {
+        connection.set(testkey, testString, function (err, meta) {
             assert(!err, 'Failed to store object');
             assert.strictEqual(testkey, meta.id, 'Callback called with wrong key!');
 
-            cb.get(testkey, function (err, doc, meta) {
+            connection.get(testkey, function (err, doc, meta) {
                 assert(!err, 'Failed to get object');
                 assert.strictEqual(testkey, meta.id, 'Callback called with wrong key!');
                 assert.strictEqual(testString, doc, 'Unicode characters should round trip.');

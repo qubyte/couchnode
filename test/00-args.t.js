@@ -16,8 +16,6 @@ describe('test args', function () {
         };
     }
     
-    console.log(config);
-
     before(function (done) {
         couchbase.connect(config, function afterConnection(err, conn) {
             if (err) {

@@ -20,8 +20,6 @@ describe('test set', function () {
         };
     }
     
-    console.log(config);
-
     before(function (done) {
         couchbase.connect(config, function afterConnection(err, conn) {
             if (err) {
@@ -91,7 +89,7 @@ describe('test set', function () {
             longString += '012345678\n';
         }
 
-        connection.set(testkey, object, function (err, firstmeta) {
+        connection.set(testkey, longString, function (err, firstmeta) {
             assert(!err, 'Failed to store long string.');
             
             done();
