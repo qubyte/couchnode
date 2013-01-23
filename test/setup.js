@@ -10,7 +10,7 @@ function connect(callback) {
 
     // If there is no connection yet, read from a config file or use default settings.
     try {
-        config = require(__dirname + '/config.json');    
+        config = require(__dirname + '/config.json');
         console.log('using config file:', config);
     } catch (e) {
         config = { hosts : [ 'localhost:8091' ], bucket : 'default' };

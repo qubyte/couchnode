@@ -2,6 +2,7 @@ describe('test replace', function () {
     var assert = require('assert');
     var setup = require(__dirname + '/setup');
     var connection;
+    var testkey = '05-replace.js';
 
     before(function (done) {
         setup.connect(function (err, conn) {
@@ -10,33 +11,31 @@ describe('test replace', function () {
             }
 
             connection = conn;
-            done();
+
+            // Unconditional removal, so we don't care about errors.
+            connection.remove(testkey, function () {
+                done();
+            });
         });
     });
 
     // tests follow
 
     it('should replace a key in the store', function (done) {
-        var testkey = '05-replace.js';
+        connection.replace(testkey, 'bar', function(err, meta) {
+            assert(err, 'Can\'t replace object that is already removed');
 
-        // The test key may or may not exist. If not then we ignore the error.
-        connection.remove(testkey, function () {
+            connection.set(testkey, 'bar', function (err, meta) {
+                assert.ifError(err, 'Failed to store object');
 
-            connection.replace(testkey, 'bar', function(err, meta) {
-                assert(err, 'Can\'t replace object that is already removed');
+                connection.replace(testkey, 'bazz', function (err, meta) {
+                    assert.ifError(err, 'Failed to replace object');
 
-                connection.set(testkey, 'bar', function (err, meta) {
-                    assert(!err, 'Failed to store object');
+                    connection.get(testkey, function (err, doc) {
+                        assert.ifError(err, 'Failed to get object');
+                        assert.strictEqual('bazz', doc, 'Replace didn\'t work');
 
-                    connection.replace(testkey, 'bazz', function (err, meta) {
-                        assert(!err, 'Failed to replace object');
-
-                        connection.get(testkey, function (err, doc) {
-                            assert(!err, 'Failed to get object');
-                            assert.strictEqual('bazz', doc, 'Replace didn\'t work');
-
-                            done();
-                        });
+                        done();
                     });
                 });
             });

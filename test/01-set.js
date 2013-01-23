@@ -21,7 +21,7 @@ describe('test set', function () {
         var testkey = '01-set.js';
 
         connection.set(testkey, 'bar', function (err, meta) {
-            assert(!err, 'Failed to store object.');
+            assert.ifError(err, 'Failed to store object.');
             assert.equal(testkey, meta.id, 'Callback called with wrong key!');
 
             firstmeta = meta;
@@ -34,7 +34,7 @@ describe('test set', function () {
         var testkey = '01-set.js';
 
         connection.set(testkey, 'baz', firstmeta, function(err, meta) {
-            assert(!err, 'Failed to set with CAS.');
+            assert.ifError(err, 'Failed to set with CAS.');
             assert.equal(testkey, meta.id, 'Callback called with wrong key!');
             assert.notEqual(firstmeta.cas.str, meta.cas.str, 'CAS should change.');
 
@@ -49,7 +49,7 @@ describe('test set', function () {
             assert(err, 'Should error with cas mismatch.');
 
             connection.get(testkey, function(err, doc) {
-                assert(!err, 'Failed to load object.');
+                assert.ifError(err, 'Failed to load object.');
                 assert.strictEqual('baz', doc, 'Document changed despite bad cas!');
 
                 done();
@@ -61,11 +61,11 @@ describe('test set', function () {
         var testkey = '01-set.js2';
 
         connection.set(testkey, {foo : 'bar'}, function (err, meta) {
-            assert(!err, 'Failed to store object.');
+            assert.ifError(err, 'Failed to store object.');
             assert.deepEqual(testkey, meta.id, 'Callback called with wrong key!');
 
             connection.set(testkey, {foo : 'baz'}, function(err, meta) {
-                assert(!err, 'Failed to set without cas.');
+                assert.ifError(err, 'Failed to set without cas.');
                 assert.deepEqual(testkey, meta.id, 'Callback called with wrong key!');
 
                 done();
@@ -83,6 +83,22 @@ describe('test set', function () {
 
         connection.set(testkey, longString, function (err) {
             done(err);
+        });
+    });
+
+    it('should set a key with a different hash key', function (done) {
+        var testKey = { key : "01-hashkey-key.js", hashkey : "01-hashkey-hashkey.js" };
+
+        connection.set(testKey, 'bar', function (err, meta) {
+            assert.ifError(err, 'failed to store object');
+            assert.strictEqual(testKey.key, meta.id, 'callback with wrong key');
+
+            connection.get(testKey, function (err, doc, meta) {
+                assert.strictEqual(testKey.key, meta.id, 'callback called with wrong key');
+                assert.strictEqual('bar', doc, 'callback called with wrong value');
+
+                done();
+            });
         });
     });
 });

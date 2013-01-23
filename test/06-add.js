@@ -2,6 +2,7 @@ describe('test add', function () {
     var assert = require('assert');
     var setup = require(__dirname + '/setup');
     var connection;
+    var testkey = '06-add.js';
 
     before(function (done) {
         setup.connect(function (err, conn) {
@@ -10,28 +11,26 @@ describe('test add', function () {
             }
 
             connection = conn;
-            done();
+            
+            // Unconditional removal, so we don't care about errors.
+            connection.remove(testkey, function () {
+                done();
+            });
         });
     });
 
     // tests follow
 
     it('should add a key to the store', function (done) {
-        var testkey = '06-add.js';
+        connection.add(testkey, 'bar', function(err, meta) {
+            assert.ifError(err, 'Can add object at empty key');
+            assert.strictEqual(testkey, meta.id, 'Callback called with wrong key!');
 
-        // The test key may or may not exist. If not then we ignore the error.
-        connection.remove(testkey, function(){
+            // try to add existing key, should fail
+            connection.add(testkey, 'baz', function (err, meta) {
+                assert(err, 'Can\'t add object at empty key');
 
-            connection.add(testkey, 'bar', function(err, meta) {
-                assert(!err, 'Can add object at empty key');
-                assert.strictEqual(testkey, meta.id, 'Callback called with wrong key!');
-
-                // try to add existing key, should fail
-                connection.add(testkey, 'baz', function (err, meta) {
-                    assert(err, 'Can\'t add object at empty key');
-
-                    done();
-                });
+                done();
             });
         });
     });

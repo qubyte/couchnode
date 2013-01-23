@@ -10,7 +10,7 @@
       "bindings": "~1.0.0"
     },
     "devDependencies": {
-      "mocha": "*",
+      "mocha": "*"
     },
     "scripts": {
       "test": "./node_modules/mocha/bin/mocha"

@@ -17,16 +17,16 @@ describe('test remove', function () {
     // tests follow
 
     it('should remove a key from the store', function (done) {
-        var testkey = "04-remove.js"
+        var testkey = '04-remove.js';
 
         connection.set(testkey, 'bar', function (err, meta) {
-            assert(!err, 'Failed to store object.');
+            assert.ifError(err, 'Failed to store object.');
             assert.strictEqual(testkey, meta.id, 'Get callback called with wrong key!');
             
             var cas = meta.cas;
 
             connection.remove(testkey, function (err, meta) {
-                assert(!err, 'Failed to remove object.');
+                assert.ifError(err, 'Failed to remove object.');
                 assert.strictEqual(testkey, meta.id, 'Remove existing called with wrong key!');
 
                 connection.remove(testkey, function (err, meta) {
