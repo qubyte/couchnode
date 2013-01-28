@@ -45,7 +45,7 @@ describe('test views', function () {
                 assert.ifError(err, 'failed to get doc');
                 assert.strictEqual(meta.id, testKey, 'get callback called with wrong key');
     
-                connection.setDesignDoc(designDocKey, designDoc, function (err, meta, data) {
+                connection.setDesignDoc(designDocKey, designDoc, function (err, data) {
                     assert.ifError(err, 'error creating design doc');
     
                     // now lets find our key in the view. We need to add stale=false in order to
@@ -58,15 +58,11 @@ describe('test views', function () {
 
                     // Wrap this in a timeout to give the view time to work.
                     setTimeout(function () {
-                        connection.view(designDocKey, 'testView', params, function (err, code, view) {
+                        connection.view(designDocKey, 'testView', params, function (err, view) {
                             assert.ifError(err, 'error fetching view');
-                            assert.strictEqual(code, 200, 'error fetching view');
-        
-                            var json = JSON.parse(view);
-                            var rows = json.rows;
-                            
-                            assert.strictEqual(rows.length, 1, 'got wrong number of rows');
-                            assert.strictEqual(testKey, rows[0].key, 'got wrong data from row');
+
+                            assert.strictEqual(view.length, 1, 'got wrong number of rows');
+                            assert.strictEqual(testKey, view[0].key, 'got wrong data from row');
         
                             done();
                         });
