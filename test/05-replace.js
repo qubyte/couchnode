@@ -22,13 +22,13 @@ describe('test replace', function () {
     // tests follow
 
     it('should replace a key in the store', function (done) {
-        connection.replace(testkey, 'bar', function(err, meta) {
+        connection.replace(testkey, 'bar', function (err) {
             assert(err, 'Can\'t replace object that is already removed');
 
-            connection.set(testkey, 'bar', function (err, meta) {
+            connection.set(testkey, 'bar', function (err) {
                 assert.ifError(err, 'Failed to store object');
 
-                connection.replace(testkey, 'bazz', function (err, meta) {
+                connection.replace(testkey, 'bazz', function (err) {
                     assert.ifError(err, 'Failed to replace object');
 
                     connection.get(testkey, function (err, doc) {

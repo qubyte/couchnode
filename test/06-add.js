@@ -22,12 +22,12 @@ describe('test add', function () {
     // tests follow
 
     it('should add a key to the store', function (done) {
-        connection.add(testkey, 'bar', function(err, meta) {
+        connection.add(testkey, 'bar', function (err, meta) {
             assert.ifError(err, 'Can add object at empty key');
             assert.strictEqual(testkey, meta.id, 'Callback called with wrong key!');
 
             // try to add existing key, should fail
-            connection.add(testkey, 'baz', function (err, meta) {
+            connection.add(testkey, 'baz', function (err) {
                 assert(err, 'Can\'t add object at empty key');
 
                 done();

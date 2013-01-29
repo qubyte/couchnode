@@ -46,15 +46,15 @@ describe('test prepend and append', function () {
         keysUsed.push(key);
 
         // Set a key to work with.
-        connection.set(key, 'foo', function (err, meta) {
+        connection.set(key, 'foo', function (err) {
             assert.ifError(err, 'failed to set key');
 
             // Append to the value of key without meta.
-            connection.append(key, 'bar', {}, function (err, meta) {
+            connection.append(key, 'bar', {}, function (err) {
                 assert.ifError(err, 'failed to append');
 
                 // Get the doc back and verify the result.
-                connection.get(key, function (err, doc, meta) {
+                connection.get(key, function (err, doc) {
                     assert.ifError(err, 'failed to get');
                     assert.strictEqual(doc, 'foobar', 'append resulted in wrong value');
 
@@ -69,15 +69,15 @@ describe('test prepend and append', function () {
         keysUsed.push(key);
 
         // Set a key to work with.
-        connection.set(key, 'foo', function (err, meta) {
+        connection.set(key, 'foo', function (err) {
             assert.ifError(err, 'failed to set key');
 
             // Prepend to the value of key without meta.
-            connection.prepend(key, 'bar', {}, function (err, meta) {
+            connection.prepend(key, 'bar', {}, function (err) {
                 assert.ifError(err, 'failed to append');
 
                 // Get the doc back and verify the result.
-                connection.get(key, function (err, doc, meta) {
+                connection.get(key, function (err, doc) {
                     assert.ifError(err, 'failed to get');
                     assert.strictEqual(doc, 'barfoo', 'prepend resulted in wrong value');
 
@@ -96,11 +96,11 @@ describe('test prepend and append', function () {
             assert.ifError(err, 'failed to set key');
 
             // Append to the value of key using previous meta.
-            connection.append(key, 'bar', meta, function (err, meta) {
+            connection.append(key, 'bar', meta, function (err) {
                 assert.ifError(err, 'failed to append');
 
                 // Get the doc back and verify the result.
-                connection.get(key, function (err, doc, meta) {
+                connection.get(key, function (err, doc) {
                     assert.ifError(err, 'failed to get');
                     assert.strictEqual(doc, 'foobar', 'append with CAS resulted in wrong value');
 
@@ -119,11 +119,11 @@ describe('test prepend and append', function () {
             assert.ifError(err, 'failed to set key');
 
             // Prepend to the value of key using previous meta.
-            connection.prepend(key, 'bar', meta, function (err, meta) {
+            connection.prepend(key, 'bar', meta, function (err) {
                 assert.ifError(err, 'failed to append');
 
                 // Get the doc back and verify the result.
-                connection.get(key, function (err, doc, meta) {
+                connection.get(key, function (err, doc) {
                     assert.ifError(err, 'failed to get');
                     assert.strictEqual(doc, 'barfoo', 'prepend with CAS resulted in wrong value');
 
@@ -142,15 +142,15 @@ describe('test prepend and append', function () {
             assert.ifError(err, 'failed to set key');
 
             // Reset the key.
-            connection.set(key, 'foo', function (err, meta) {
+            connection.set(key, 'foo', function (err) {
                 assert.ifError(err, 'failed to set key');
 
                 // Attempt to append to the value of key using the first meta.
-                connection.append(key, 'bar', wrongMeta, function (err, meta) {
+                connection.append(key, 'bar', wrongMeta, function (err) {
                     assert(err, 'should fail to append');
 
                     // Get the doc back and verify the result.
-                    connection.get(key, function (err, doc, meta) {
+                    connection.get(key, function (err, doc) {
                         assert.ifError(err, 'failed to get');
                         assert.strictEqual(doc, 'foo', 'failed append resulted in wrong value');
     
@@ -170,15 +170,15 @@ describe('test prepend and append', function () {
             assert.ifError(err, 'failed to set key');
 
             // Reset the key.
-            connection.set(key, 'foo', function (err, meta) {
+            connection.set(key, 'foo', function (err) {
                 assert.ifError(err, 'failed to set key');
 
                 // Attempt to prepend to the value of key using the first meta.
-                connection.prepend(key, 'bar', wrongMeta, function (err, meta) {
+                connection.prepend(key, 'bar', wrongMeta, function (err) {
                     assert(err, 'should fail to append');
 
                     // Get the doc back and verify the result.
-                    connection.get(key, function (err, doc, meta) {
+                    connection.get(key, function (err, doc) {
                         assert.ifError(err, 'failed to get');
                         assert.strictEqual(doc, 'foo', 'failed prepend resulted in wrong value');
     

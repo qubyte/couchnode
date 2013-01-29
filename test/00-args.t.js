@@ -31,7 +31,7 @@ describe('test args', function () {
     });
 
     it('falsy values for CAS and exp should not throw', function () {
-        assert.doesNotThrow(function() {
+        assert.doesNotThrow(function () {
             [null, undefined, 0, false].forEach(function (fv) {
                 connection.set('has falsy meta', 'value', {cas : fv, exp : fv}, devNull);
             });
@@ -46,7 +46,7 @@ describe('test args', function () {
 
     it('bad set arguments should throw', function () {
         assert.throws(function () {
-            cb.set('needs callback');
+            connection.set('needs callback');
         });
     });
 });

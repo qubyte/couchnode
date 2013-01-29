@@ -18,7 +18,6 @@ describe('test get', function () {
 
     it('should get correct string after reset', function (done) {
         var testkey = '01-set.js';
-        var storedMeta;
 
         connection.set(testkey, '{bar}', function (err, meta) {
             assert.ifError(err, 'Failed to store object.');
@@ -33,7 +32,7 @@ describe('test get', function () {
                     assert.ifError(err, 'Failed to set with CAS.');
                     assert.strictEqual(testkey, meta.id, 'Callback called with wrong key!');
 
-                    connection.get(testkey, function (err, doc, meta) {
+                    connection.get(testkey, function (err, doc) {
                         assert.ifError(err, 'Failed to get object.');
                         assert.strictEqual('bam', doc, 'Callback called with wrong value!');
 

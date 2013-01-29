@@ -19,7 +19,7 @@ describe('test observe', function () {
     // tests follow
 
     it('should observe', function (done) {
-        connection.set(testKey, 'bar', function (err, meta) {
+        connection.set(testKey, 'bar', function (err) {
             assert.ifError(err, 'failed to store object');
     
             connection.observe(testKey, function (err, meta) {

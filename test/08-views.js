@@ -22,7 +22,7 @@ describe('test views', function () {
             connection = conn;
 
             // Remove design doc if it exists. Deliberately ignore errors.
-            connection.deleteDesignDoc(designDocKey, function() {
+            connection.deleteDesignDoc(designDocKey, function () {
                 done();
             });
         });
@@ -45,7 +45,7 @@ describe('test views', function () {
                 assert.ifError(err, 'failed to get doc');
                 assert.strictEqual(meta.id, testKey, 'get callback called with wrong key');
     
-                connection.setDesignDoc(designDocKey, designDoc, function (err, data) {
+                connection.setDesignDoc(designDocKey, designDoc, function (err) {
                     assert.ifError(err, 'error creating design doc');
     
                     // now lets find our key in the view. We need to add stale=false in order to

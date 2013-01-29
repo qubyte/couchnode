@@ -41,7 +41,7 @@ describe('test multiple get', function () {
 
         var getCounter = 0;
 
-        function singleGetCallback(err, doc, meta) {
+        function singleGetCallback(err, doc) {
             assert.ifError(err, 'Single get error.');
             assert(doc, 'A document should be retrieved.');
 
@@ -93,7 +93,7 @@ describe('test multiple get', function () {
 
         var getCounter = 0;
 
-        function singleGetCallback(err, doc, meta) {
+        function singleGetCallback(err, doc) {
             assert.ifError(err, 'Single get error.');
             assert(doc, 'A document should be retrieved.');
 

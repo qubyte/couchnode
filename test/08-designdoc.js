@@ -30,7 +30,7 @@ describe('test design doc', function () {
     // tests follow
     
     it('should write and retrieve and delete a new design doc', function (done) {
-        connection.setDesignDoc(docName, designDoc, function (err, data) {
+        connection.setDesignDoc(docName, designDoc, function (err) {
             assert.ifError(err, 'error creating design document');
     
             // Get the design doc back.
@@ -39,7 +39,7 @@ describe('test design doc', function () {
                 assert.deepEqual(data, designDoc, 'design doc retrieved was not the same as that set');
 
                 // Delete the design document and check for success.
-                connection.deleteDesignDoc(docName, function (err, data) {
+                connection.deleteDesignDoc(docName, function (err) {
                     assert.ifError(err, 'Failed deleting design document');
 
                     done();

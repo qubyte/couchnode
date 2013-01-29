@@ -22,7 +22,7 @@ describe('test endure', function () {
     // tests follow
 
     it('should endure', function (done) {
-		connection.set(testKey, 'bar', function (err, meta) {
+		connection.set(testKey, 'bar', function (err) {
             assert.ifError(err, 'failed to store object');
 
             connection.endure(testKey, endureOpts, function (err, meta) {

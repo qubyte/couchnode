@@ -33,7 +33,7 @@ describe('test set', function () {
     it('should set a string with CAS', function (done) {
         var testkey = '01-set.js';
 
-        connection.set(testkey, 'baz', firstmeta, function(err, meta) {
+        connection.set(testkey, 'baz', firstmeta, function (err, meta) {
             assert.ifError(err, 'Failed to set with CAS.');
             assert.equal(testkey, meta.id, 'Callback called with wrong key!');
             assert.notEqual(firstmeta.cas.str, meta.cas.str, 'CAS should change.');
@@ -45,10 +45,10 @@ describe('test set', function () {
     it('should error and not write with CAS mismatch', function (done) {
         var testkey = '01-set.js';
 
-        connection.set(testkey, 'bam', firstmeta, function(err, meta) {
+        connection.set(testkey, 'bam', firstmeta, function (err) {
             assert(err, 'Should error with cas mismatch.');
 
-            connection.get(testkey, function(err, doc) {
+            connection.get(testkey, function (err, doc) {
                 assert.ifError(err, 'Failed to load object.');
                 assert.strictEqual('baz', doc, 'Document changed despite bad cas!');
 
@@ -64,7 +64,7 @@ describe('test set', function () {
             assert.ifError(err, 'Failed to store object.');
             assert.deepEqual(testkey, meta.id, 'Callback called with wrong key!');
 
-            connection.set(testkey, {foo : 'baz'}, function(err, meta) {
+            connection.set(testkey, {foo : 'baz'}, function (err, meta) {
                 assert.ifError(err, 'Failed to set without cas.');
                 assert.deepEqual(testkey, meta.id, 'Callback called with wrong key!');
 
