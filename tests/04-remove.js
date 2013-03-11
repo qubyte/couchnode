@@ -1,32 +1,42 @@
-var setup = require('./setup'),
-    assert = require('assert');
+describe('test remove', function () {
+    var assert = require('assert');
+    var setup = require('./setup');
+    var connection;
 
-setup(function(err, cb) {
-    assert(!err, "setup failure");
+    before(function (done) {
+        setup.connect(function (err, conn) {
+            if (err) {
+                return done(err);
+            }
 
-    cb.on("error", function (message) {
-        console.log("ERROR: [" + message + "]");
-        process.exit(1);
+            connection = conn;
+            done();
+        });
     });
 
-    var testkey = "04-remove.js"
+    // tests follow
 
-    cb.set(testkey, "bar", function (err, meta) {
-        assert(!err, "Failed to store object");
-        assert.equal(testkey, meta.id, "Get callback called with wrong key!")
-        var cas = meta.cas;
+    it('should remove a key from the store', function (done) {
+        var testkey = '04-remove.js';
 
-        cb.remove(testkey, function (err, meta) {
-            assert(!err, "Failed to remove object");
-            assert.equal(testkey, meta.id, "Remove existing called with wrong key!")
+        connection.set(testkey, 'bar', function (err, meta) {
+            assert.ifError(err, 'Failed to store object.');
+            assert.strictEqual(testkey, meta.id, 'Get callback called with wrong key!');
 
-            // now remove it even when it doesn't exist
-            cb.remove(testkey, function (err, meta) {
-                assert(err, "Can't remove object that is already removed");
-                assert.equal(testkey, meta.id, "Remove missing called with wrong key!")
-                assert.notEqual(cas, meta.cas);
-                process.exit(0);
+            var cas = meta.cas;
+
+            connection.remove(testkey, function (err, meta) {
+                assert.ifError(err, 'Failed to remove object.');
+                assert.strictEqual(testkey, meta.id, 'Remove existing called with wrong key!');
+
+                connection.remove(testkey, function (err, meta) {
+                    assert(err, 'Can\'t remove object that is already removed.');
+                    assert.strictEqual(testkey, meta.id, 'Remove missing called with wrong key!');
+                    assert.notStrictEqual(cas, meta.cas);
+
+                    done();
+                });
             });
         });
     });
-})
+});

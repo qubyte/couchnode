@@ -1,49 +1,104 @@
-var setup = require('./setup'),
-    assert = require('assert');
+describe('test set', function () {
+    var assert = require('assert');
+    var setup = require('./setup');
+    var connection;
+    var firstmeta;
 
-setup.plan(2); // exit at second call to setup.end()
+    before(function (done) {
+        setup.connect(function (err, conn) {
+            if (err) {
+                return done(err);
+            }
 
-setup(function(err, cb) {
-    assert(!err, "setup failure");
-
-    cb.on("error", function (message) {
-        console.log("ERROR: [" + message + "]");
-        process.exit(1);
+            connection = conn;
+            done();
+        });
     });
 
-    // test cas updates
-    var testkey = "01-set.js"
-    cb.set(testkey, "bar", function (err, firstmeta) {
-        assert(!err, "Failed to store object");
-        assert.equal(testkey, firstmeta.id, "Callback called with wrong key!")
+    // tests follow
 
-        cb.set(testkey, "baz", firstmeta, function(err, meta) {
-            assert(!err, "Failed to set with cas");
-            assert.equal(testkey, meta.id, "Callback called with wrong key!")
-            assert.notEqual(firstmeta.cas.str, meta.cas.str, "cas should change");
-            // use the old cas, should reject the write
-            cb.set(testkey, "bam", firstmeta, function(err, meta) {
-                assert(err, "Should error with cas mismatch");
-                cb.get(testkey, function(err, doc) {
-                    assert(!err, "Failed to load object");
-                    assert.equal("baz", doc, "Document changed despite bad cas!")
-                    setup.end()
-                })
-            })
-        })
+    it('should store a string', function (done) {
+        var testkey = '01-set.js';
+
+        connection.set(testkey, 'bar', function (err, meta) {
+            assert.ifError(err, 'Failed to store object.');
+            assert.equal(testkey, meta.id, 'Callback called with wrong key!');
+
+            firstmeta = meta;
+
+            done();
+        });
     });
 
-    // test non cas updates
-    var testkey2 = "01-set.js2"
-    cb.set(testkey2, {foo : "bar"}, function (err, meta) {
-        assert(!err, "Failed to store object");
-        assert.equal(testkey2, meta.id, "Callback called with wrong key!")
+    it('should set a string with CAS', function (done) {
+        var testkey = '01-set.js';
 
-        // non cas updates work too
-        cb.set(testkey2, {foo : "baz"}, function(err, meta) {
-            assert(!err, "Failed to set without cas");
-            assert.equal(testkey2, meta.id, "Callback called with wrong key!")
-            setup.end();
-        })
+        connection.set(testkey, 'baz', firstmeta, function (err, meta) {
+            assert.ifError(err, 'Failed to set with CAS.');
+            assert.equal(testkey, meta.id, 'Callback called with wrong key!');
+            assert.notEqual(firstmeta.cas.str, meta.cas.str, 'CAS should change.');
+
+            done();
+        });
     });
-})
+
+    it('should error and not write with CAS mismatch', function (done) {
+        var testkey = '01-set.js';
+
+        connection.set(testkey, 'bam', firstmeta, function (err) {
+            assert(err, 'Should error with cas mismatch.');
+
+            connection.get(testkey, function (err, doc) {
+                assert.ifError(err, 'Failed to load object.');
+                assert.strictEqual('baz', doc, 'Document changed despite bad cas!');
+
+                done();
+            });
+        });
+    });
+
+    it('should update key without CAS', function (done) {
+        var testkey = '01-set.js2';
+
+        connection.set(testkey, {foo : 'bar'}, function (err, meta) {
+            assert.ifError(err, 'Failed to store object.');
+            assert.deepEqual(testkey, meta.id, 'Callback called with wrong key!');
+
+            connection.set(testkey, {foo : 'baz'}, function (err, meta) {
+                assert.ifError(err, 'Failed to set without cas.');
+                assert.deepEqual(testkey, meta.id, 'Callback called with wrong key!');
+
+                done();
+            });
+        });
+    });
+
+    it('should set a very long string', function (done) {
+        var testkey = '01-set-big.js';
+        var longString = '';
+
+        for (var i = 0; i < 8192; i++) {
+            longString += '012345678\n';
+        }
+
+        connection.set(testkey, longString, function (err) {
+            done(err);
+        });
+    });
+
+    it('should set a key with a different hash key', function (done) {
+        var testKey = { key : "01-hashkey-key.js", hashkey : "01-hashkey-hashkey.js" };
+
+        connection.set(testKey, 'bar', function (err, meta) {
+            assert.ifError(err, 'failed to store object');
+            assert.strictEqual(testKey.key, meta.id, 'callback with wrong key');
+
+            connection.get(testKey, function (err, doc, meta) {
+                assert.strictEqual(testKey.key, meta.id, 'callback called with wrong key');
+                assert.strictEqual('bar', doc, 'callback called with wrong value');
+
+                done();
+            });
+        });
+    });
+});

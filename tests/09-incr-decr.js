@@ -1,102 +1,132 @@
-var setup = require('./setup'),
-    assert = require('assert');
+describe('test increment and decrement', function () {
+    var assert = require('assert');
+    var setup = require('./setup');
+    var connection;
 
+    var testKeys = [
+        '09-incr-decr.js',
+        '09-incr-decr.js2',
+        '09-incr-decr.js3',
+        '09-incr-decr.js4',
+        '09-incr-decr.js5',
+        '09-incr-decr.js6'
+    ];
 
-setup.plan(6); // exit at 6th call to setup.end()
+    function devNull() {}
 
+    before(function (done) {
+        setup.connect(function (err, conn) {
+            if (err) {
+                return done(err);
+            }
 
-setup(function(err, cb) {
-    assert(!err, "setup failure");
+            connection = conn;
 
-    cb.on("error", function (message) {
-        console.log("ERROR : [" + message + "]");
-        process.exit(1);
-    });
-
-
-    var testkey = "09-incr-decr.js",
-        testkey2 = "09-incr-decr.js2",
-        testkey3 = "09-incr-decr.js3",
-        testkey4 = "09-incr-decr.js4";
-        testkey5 = "09-incr-decr.js5";
-        testkey6 = "09-incr-decr.js6";
-
-    cb.remove(testkey, function (err, meta) {});
-    cb.remove(testkey2, function (err, meta) {});
-    cb.remove(testkey3, function (err, meta) {});
-    cb.remove(testkey4, function (err, meta) {});
-    cb.remove(testkey5, function (err, meta) {});
-    cb.remove(testkey6, function (err, meta) {});
-
-    // Set A : minimal number of parameter (no parameter)
-    cb.incr( testkey,  function(err, value, meta){
-        assert.equal(value, 0, "Default Increment 1st call : value should be 0 but it is "+ value);
-
-        cb.incr( testkey,  function(err, value, meta){
-            assert.equal(value, 1, "Default Increment 2nd call : value should be 1 but it is "+ value);
-
-            cb.incr( testkey,  function(err, value, meta){
-                assert.equal(value, 2, "Default Increment 3rd call : value should be 2 but it is "+ value);
-
-                cb.decr( testkey,  function(err, value, meta){
-                    assert.equal(value, 1, "Default Decrement : value should be 1 but it is "+ value);
-                    setup.end();
-                });
-
+            // Remove keys that we will use. Ignore errors.
+            testKeys.forEach(function (key) {
+                connection.remove(key, devNull);
             });
+
+            done();
         });
     });
 
+    // tests follow
 
-    // Set B : User 1 parameter : offset
-    cb.incr( testkey2,  {offset : 10},  function(err, value, meta){
-        assert.equal(value, 0, "Default Increment 1st call with 10 : value should be 0 but it is "+ value);
+    it('should increment and decrement a key with no parameter', function (done) {
+        var testKey = testKeys[0];
 
-        cb.incr( testkey2,  {offset : 10},  function(err, value, meta){
-            assert.equal(value, 10,  "Default Increment 2nd call with 10 : value should be 10 but it is "+ value);
+        connection.incr(testKey, function (err, value) {
+            assert.strictEqual(value, 0, 'default increment 1st call: expected 0 but got ' + value);
 
-            cb.incr( testkey2, {offset : 5},  function(err, value, meta){
-                assert.equal(value, 15, "Default Increment 3rd call with 5 : value should be 15 but it is "+ value);
+            connection.incr(testKey, function (err, value) {
+                assert.strictEqual(value, 1, 'default increment 2nd call: expected 1 but got ' + value);
 
-                cb.decr( testkey2, {offset : 10},  function(err, value, meta){
-                    assert.equal(value, 5, "Default Decrement with 10 : value should be 5 but it is "+ value);
-                    setup.end();
+                connection.incr(testKey, function (err, value) {
+                    assert.strictEqual(value, 2, 'default increment 3nd call: expected 2 but got ' + value);
+
+                    connection.decr(testKey, function (err, value) {
+                        assert.strictEqual(value, 1, 'default decrement: expected 1 but got ' + value);
+
+                        done();
+                    });
                 });
             });
         });
     });
 
+    it('should increment and decrement with offset parameter', function (done) {
+        var testKey = testKeys[1];
 
-    // Set C : Test Default value
-    cb.incr( testkey3,  {defaultValue : 100}, function(err, value, meta){
-        assert.equal(value, 100, "Default Increment test default value : value should be 100 but it is "+ value);
-        setup.end();
-    });
+        connection.incr(testKey, { offset : 10 }, function (err, value) {
+            assert.ifError(err, 'failed to increment');
+            assert.equal(value, 0, 'Default increment 1st call with 10: expected 0 but got ' + value);
 
+            connection.incr(testKey, { offset : 10 }, function (err, value) {
+                assert.ifError(err, 'failed to increment');
+                assert.equal(value, 10,  'Default increment 2nd call with 10: expected 10 but got ' + value);
 
-    cb.decr( testkey4,  {defaultValue : 100}, function(err, value, meta){
+                connection.incr(testKey, { offset : 5 }, function (err, value) {
+                    assert.ifError(err, 'failed to increment');
+                    assert.equal(value, 15, 'Default increment 3rd call with 5: expected 15 but got ' + value);
 
-        assert.equal(value, 100, "Default Decrement test default value : value should be 100 but it is "+ value);
+                    connection.decr(testKey, { offset : 10 }, function (err, value) {
+                        assert.ifError(err, 'failed to decrement');
+                        assert.equal(value, 5, 'Default decrement with 10: expected 5 but got ' + value);
 
-        cb.decr( testkey4,  {offset : 90}, function(err, value, meta){
-            assert.equal(value, 10, "Default Decrement test default value : value should be 10 but it is "+ value);
-            setup.end();
+                        done();
+                    });
+                });
+            });
         });
-
-
     });
 
+    it('should increment with default value', function (done) {
+        var testKey = testKeys[2];
 
-    // Set D : Test with expiry (not testing the expiry just the parameters)
-    cb.incr( testkey5,  {expiry : 5}, function(err, value, meta){
-        assert.equal(value, 0, "Default Increment test default value : value should be 0 but it is "+ value);
-        setup.end();
+        connection.incr(testKey,  { defaultValue : 100 }, function (err, value) {
+            assert.ifError(err, 'failed to increment');
+            assert.strictEqual(value, 100, 'Default increment test default value: expected 100 but got ' + value);
+
+            done();
+        });
     });
 
+    it('should decrement with default value', function (done) {
+        var testKey = testKeys[3];
 
-    cb.decr( testkey6,  {defaultValue : 50, expiry : 5}, function(err, value, meta){
-        assert.equal(value, 50, "Default Decrement test default value : value should be 50 but it is "+ value);
-        setup.end();
+        connection.decr(testKey, { defaultValue: 100 }, function (err, value) {
+            assert.ifError(err, 'failed to decrement');
+            assert.strictEqual(value, 100, 'Default increment test default value: expected 100 but got ' + value);
+
+            connection.decr(testKey, { offset: 90 }, function (err, value) {
+                assert.ifError(err, 'failed to decrement');
+                assert.strictEqual(value, 10, 'Default decrement test default value: expected 10 but got ' + value);
+
+                done();
+            });
+        });
     });
 
-})
+    it('should incrememnt with expiry', function (done) {
+        var testKey = testKeys[4];
+
+        connection.incr(testKey, { expiry: 5 }, function (err, value) {
+            assert.ifError(err, 'failed to increment');
+            assert.strictEqual(value, 0, 'Default increment test default value: expected 0 but got ' + value);
+
+            done();
+        });
+    });
+
+    it('should decrement with expiry', function (done) {
+        var testKey = testKeys[5];
+
+        connection.decr(testKey, { defaultValue: 50, expiry: 5 }, function (err, value) {
+            assert.ifError(err, 'failed to decrement');
+            assert.strictEqual(value, 50, 'Default increment test default value: expected 50 but got ' + value);
+
+            done();
+        });
+    });
+});

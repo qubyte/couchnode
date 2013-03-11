@@ -1,54 +1,76 @@
-var setup = require('./setup'),
-    assert = require('assert');
+describe('test views', function () {
+    var assert = require('assert');
+    var setup = require('./setup');
+    var connection;
 
-setup(function(err, cb) {
-    assert(!err, "setup failure");
+    var testKey = '08-views.js';
+    var designDocKey = 'dev_test-design';
+    var designDoc = {
+        "views": {
+            "testView": {
+                "map": "function(doc,meta){emit(meta.id)}"
+            }
+        }
+    };
 
-    cb.on("error", function (message) {
-        console.log("ERROR: [" + message + "]");
-        process.exit(1);
-    });
+    before(function (done) {
+        setup.connect(function (err, conn) {
+            if (err) {
+                return done(err);
+            }
 
-    var testkey = "08-views.js"
+            connection = conn;
 
-    cb.set(testkey, "bar", function (err, meta) {
-        assert(!err, "Failed to store object");
-        assert.equal(testkey, meta.id, "Set callback called with wrong key!")
-
-        cb.get(testkey, function (err, doc, meta) {
-            assert(!err, "Failed to get object");
-            assert.equal(testkey, meta.id, "Get existing called with wrong key!")
-
-            // todo: figure out how to get around the delay in view creation
-            var ddoc = {
-                 "views": {
-                     "test-view": {
-                         "map": "function(doc,meta){emit(meta.id)}"
-                     }
-                 }
-             };
-             cb.deleteDesignDoc('dev_test-design', function() {
-                 cb.setDesignDoc('dev_test-design', ddoc,
-                                 function(err, data) {
-                     assert(!err, "error creating design document");
-                     // now lets find our key in the view.
-                     // We need to add stale=false in order to force the
-                     // view to be generated (since we're trying to look
-                     // for our key and it may not be in the view yet due
-                     // to race conditions..
-                     var params =  {key : testkey, stale : "false"};
-                     cb.view("dev_test-design", "test-view", params,
-			     function(err, view) {
-				 assert(!err, "error fetching view");
-				 assert(view.length == 1);
-				 assert.equal(testkey, view[0].key);
-
-				 cb.deleteDesignDoc('dev_test-design', function() {
-				     setup.end()
-                        });
-                    });
-                 });
-             });
+            // Remove design doc if it exists. Deliberately ignore errors.
+            connection.deleteDesignDoc(designDocKey, function () {
+                done();
+            });
         });
     });
-})
+
+    // Remove the design doc after the tests.
+    after(function (done) {
+        connection.deleteDesignDoc(designDocKey, done);
+    });
+
+    // tests follow
+
+    // Set a new key.
+    it('should create a view and query it', function (done) {
+        this.timeout(10000);
+
+        connection.set(testKey, 'bar', function (err, meta) {
+            assert.ifError(err, 'failed to store object.');
+            assert.strictEqual(meta.id, testKey, 'set callback called with wrong key');
+
+            connection.get(testKey, function (err, doc, meta) {
+                assert.ifError(err, 'failed to get doc');
+                assert.strictEqual(meta.id, testKey, 'get callback called with wrong key');
+
+                connection.setDesignDoc(designDocKey, designDoc, function (err) {
+                    assert.ifError(err, 'error creating design doc');
+
+                    // Now let's find our key in the view. We need to add stale=false in order to
+                    // force the view to be generated (since we're trying to look for our key and it
+                    // may not be in the view yet due to race conditions...)
+                    var params = {
+                        key : testKey,
+                        stale : 'false'
+                    };
+
+                    // Wrap this in a timeout to give the view time to work.
+                    setTimeout(function () {
+                        connection.view(designDocKey, 'testView', params, function (err, view) {
+                            assert.ifError(err, 'error fetching view');
+
+                            assert.strictEqual(view.length, 1, 'got wrong number of rows');
+                            assert.strictEqual(testKey, view[0].key, 'got wrong data from row');
+
+                            done();
+                        });
+                    }, 5000);
+                });
+            });
+        });
+    });
+});

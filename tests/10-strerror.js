@@ -1,14 +1,32 @@
-var setup = require('./setup'),
-    assert = require('assert');
+describe('test errors', function () {
+    var assert = require('assert');
+    var setup = require('./setup');
+    var connection;
 
-setup(function(err, cb) {
-    assert(!err, "setup failure");
+    before(function (done) {
+        setup.connect(function (err, conn) {
+            if (err) {
+                return done(err);
+            }
 
-    // Make sure an invalid errorCode doesn't crash anything
-    cb.strError(1000);
+            connection = conn;
+            done();
+        });
+    });
 
-    // Make sure we can get error strings properly
-    assert( cb.strError(0) == 'Success', 'Error strings are being returned incorrectly' );
+    // tests follow
 
-    process.exit(0);
-})
+    it('should note crash with invalid error code', function (done) {
+        assert.doesNotThrow(function () {
+            connection.strError(1000);
+        });
+
+        done();
+    });
+
+    it('should get the correct error string', function (done) {
+        assert.strictEqual(connection.strError(0), 'Success', 'Error strings not being returned correctly');
+
+        done();
+    });
+});

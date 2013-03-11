@@ -1,39 +1,52 @@
-var setup = require('./setup'),
-    assert = require('assert');
+describe('test args', function () {
+    var assert = require('assert');
+    var setup = require('./setup');
+    var connection;
 
-setup.plan(7)
+    before(function (done) {
+        setup.connect(function (err, conn) {
+            if (err) {
+                return done(err);
+            }
 
-setup(function(err, cb) {
-    assert(!err, "setup failure");
-
-    cb.on("error", function (message) {
-        console.log("ERROR: [" + message + "]");
-        process.exit(1);
+            connection = conn;
+            done();
+        });
     });
 
-    // things that should work
-    assert.doesNotThrow(function() {
-        cb.get("has callback", setup.end)
-    })
+    // tests follow
 
-    assert.doesNotThrow(function() {
-        cb.set("has callback", "value", setup.end)
-    })
+    function devNull() {} // Throw it on the ground.
 
-    assert.doesNotThrow(function() {
-        // falsy values for CAS and exp
-        [null, undefined, 0, false].forEach(function(fv) {
-            cb.set("has falsy meta", "value", {cas : fv, exp : fv}, setup.end)
-        })
-    })
+    it('correct get', function () {
+        assert.doesNotThrow(function () {
+            connection.get('correct get', devNull);
+        });
+    });
 
-    // things that should error
-    assert.throws(function() {
-        cb.get("needs callback")
-    })
+    it('correct set', function () {
+        assert.doesNotThrow(function () {
+            connection.set('correct set', 'someValue', devNull);
+        });
+    });
 
-    assert.throws(function() {
-        cb.set("needs callback")
-    })
-    setup.end()
-})
+    it('falsy values for CAS and exp should not throw', function () {
+        assert.doesNotThrow(function () {
+            [null, undefined, 0, false].forEach(function (fv) {
+                connection.set('has falsy meta', 'value', {cas : fv, exp : fv}, devNull);
+            });
+        });
+    });
+
+    it('bad get arguments should throw', function () {
+        assert.throws(function () {
+            connection.get('needs callback');
+        });
+    });
+
+    it('bad set arguments should throw', function () {
+        assert.throws(function () {
+            connection.set('needs callback');
+        });
+    });
+});
