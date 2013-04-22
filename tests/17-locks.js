@@ -109,22 +109,17 @@ setup(function(err, cb) {
 
     // Unlock reverts lock.
     cb.set(testkey6, "{boo}", function (err, meta) {
-        console.log(1)
         assert(!err, "Failed to store object");
         assert.equal(testkey6, meta.id, "Callback called with wrong key!");
 
         cb.getAndLock(testkey6, 1, function (err, doc, meta) {
-            console.log(2)
             assert.equal(testkey6, meta.id, "Callback called with wrong key!");
             assert.equal("{boo}", doc, "Callback called with wrong value!");
-            console.log(meta.cas)
 
             cb.unlock({ key: testkey6, cas: meta.cas }, function (err, doc, meta) {
-                console.log(3)
                 assert(!err, "Failed to unlock.");
 
                 cb.set(testkey6, 'hello', function (err, doc, meta) {
-                    console.log(4)
                     assert(!err, 'Failed to set on unlocked key.');
                     setup.end();
                 });
